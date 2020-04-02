@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huchengzhen.weblog.mapper.UserMapper">
+
+    <select id="findById" resultType="com.huchengzhen.weblog.dao.User">
+        select id,
+               username,
+               email,
+               is_enabled,
+               roles,
+               email_confirmed,
+               created_date,
+               last_login_date,
+               avatar
+        from user
+        where id = #{id}
+    </select>
+
+    <select id="loadUserByUsername" resultType="com.huchengzhen.weblog.dao.User">
+        select id,
+               username,
+               password,
+               email,
+               is_enabled,
+               roles,
+               email_confirmed,
+               created_date,
+               last_login_date,
+               avatar
+        from user
+        where username = #{username}
+    </select>
+
+    <insert id="register" parameterType="com.huchengzhen.weblog.dao.User">
+        insert into user (id, username, password, email, is_enabled, roles, email_confirmed, created_date, avatar)
+        VALUES (null, #{username}, #{password}, #{email}, #{isEnabled}, #{roles}, #{emailConfirmed}, #{createdDate},
+                #{avatar})
+    </insert>
+
+</mapper>
