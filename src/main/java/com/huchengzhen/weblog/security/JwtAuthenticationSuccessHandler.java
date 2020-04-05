@@ -2,6 +2,7 @@ package com.huchengzhen.weblog.security;
 
 import com.huchengzhen.weblog.dao.User;
 import com.huchengzhen.weblog.util.JwtTokenUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
@@ -15,6 +16,9 @@ import java.io.PrintWriter;
 @Component
 public class JwtAuthenticationSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
 
+    @Autowired
+    private JwtTokenUtils jwtTokenUtils;
+
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -22,7 +26,7 @@ public class JwtAuthenticationSuccessHandler extends SavedRequestAwareAuthentica
             User user = (User) principal;
             request.getSession().setAttribute("userDetail", user);
 
-            String token = JwtTokenUtils.createToken(user.getUsername(), user.getRoles(), true);
+            String token = jwtTokenUtils.createToken(user);
 
             response.setHeader("token", JwtTokenUtils.TOKEN_PREFIX + token);
             response.setContentType("application/json;charset=utf-8");

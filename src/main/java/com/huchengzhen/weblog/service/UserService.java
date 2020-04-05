@@ -45,4 +45,8 @@ public class UserService implements UserDetailsService {
 
         userMapper.register(user);
     }
+
+    public int updateLastLoginDate(Long id, Date date) {
+        return userMapper.updateLastLoginDate(id, date);
+    }
 }

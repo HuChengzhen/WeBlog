@@ -38,4 +38,10 @@
                 #{avatar})
     </insert>
 
+    <update id="updateLastLoginDate">
+        update user
+        set last_login_date = #{date}
+        where id = #{id}
+    </update>
+
 </mapper>

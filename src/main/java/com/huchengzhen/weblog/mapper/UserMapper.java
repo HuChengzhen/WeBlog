@@ -3,6 +3,7 @@ package com.huchengzhen.weblog.mapper;
 import com.huchengzhen.weblog.dao.User;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.Date;
 import java.util.Optional;
 
 @Mapper
@@ -13,4 +14,6 @@ public interface UserMapper {
     Optional<User> loadUserByUsername(String username);
 
     void register(User user);
+
+    int updateLastLoginDate(Long id, Date date);
 }

@@ -1,6 +1,8 @@
 package com.huchengzhen.weblog.security;
 
+import com.huchengzhen.weblog.service.UserService;
 import com.huchengzhen.weblog.util.JwtTokenUtils;
+import io.jsonwebtoken.Claims;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -15,9 +17,14 @@ import java.io.IOException;
 
 public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
-    public JWTAuthorizationFilter(AuthenticationManager authenticationManager) {
-        super(authenticationManager);
+    private JwtTokenUtils jwtTokenUtils;
 
+    private UserService userService;
+
+    public JWTAuthorizationFilter(AuthenticationManager authenticationManager, JwtTokenUtils jwtTokenUtils, UserService userService) {
+        super(authenticationManager);
+        this.jwtTokenUtils = jwtTokenUtils;
+        this.userService = userService;
     }
 
     @Override
@@ -33,6 +40,8 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
         }
         // 如果请求头中有token，则进行解析，并且设置认证信息
         SecurityContextHolder.getContext().setAuthentication(getAuthentication(tokenHeader));
+
+
         super.doFilterInternal(request, response, chain);
 //        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 //        System.out.println("header"+ SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
@@ -45,9 +54,14 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
     private UsernamePasswordAuthenticationToken getAuthentication(String tokenHeader) {
         if (tokenHeader.startsWith(JwtTokenUtils.TOKEN_PREFIX)) {
             String token = tokenHeader.substring(JwtTokenUtils.TOKEN_PREFIX.length());
-            String username = JwtTokenUtils.getUsername(token);
-            String roles = JwtTokenUtils.getUserRole(token);
+
+            Claims claims = jwtTokenUtils.getTokenBody(token);
+            String username = jwtTokenUtils.getUsername(claims);
+
             if (username != null) {
+                String roles = jwtTokenUtils.getUserRole(claims);
+                Long id = jwtTokenUtils.getId(claims);
+//                userService.updateLastLoginDate(id, new Date());
                 return new UsernamePasswordAuthenticationToken(username, null,
                         AuthorityUtils.commaSeparatedStringToAuthorityList(roles));
             }

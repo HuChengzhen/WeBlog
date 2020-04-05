@@ -1,6 +1,7 @@
 package com.huchengzhen.weblog.security;
 
 import com.huchengzhen.weblog.service.UserService;
+import com.huchengzhen.weblog.util.JwtTokenUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -26,6 +27,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private AuthenticationFailureHandler jwtAuthenticationFailureHandler;
 
+    private JwtTokenUtils jwtTokenUtils;
+
     @Value("${WeBlogRememberMeKey:key}")
     private String rememberMeKey;
 
@@ -42,6 +45,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     public void setJwtAuthenticationFailureHandler(AuthenticationFailureHandler jwtAuthenticationFailureHandler) {
         this.jwtAuthenticationFailureHandler = jwtAuthenticationFailureHandler;
+    }
+
+    @Autowired
+    public void setJwtTokenUtils(JwtTokenUtils jwtTokenUtils) {
+        this.jwtTokenUtils = jwtTokenUtils;
     }
 
     @Override
@@ -84,7 +92,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .logout().permitAll()
                 .and()
-                .addFilter(new JWTAuthorizationFilter(authenticationManager()))
+                .addFilter(new JWTAuthorizationFilter(authenticationManager(), jwtTokenUtils, userService))
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
