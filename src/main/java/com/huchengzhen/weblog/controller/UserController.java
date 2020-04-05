@@ -7,6 +7,8 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.Errors;
@@ -27,28 +29,33 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping("/{id}")
-    public User findById(@PathVariable Long id) {
-        return userService.findById(id).orElseThrow(() -> new ResponseStatusException(
-                HttpStatus.NOT_FOUND,
-                "id not exist"
-        ));
-    }
-
-    @GetMapping("/name/{username}")
-    public User findByUsername(@PathVariable String username) {
-        try {
-            return userService.loadUserByUsername(username);
-        } catch (UsernameNotFoundException exception) {
-            throw new ResponseStatusException(
+    @GetMapping
+    public User find(@RequestParam(required = false) Long id, @RequestParam(required = false) String username) {
+        if (id != null) {
+            return userService.findById(id).orElseThrow(() -> new ResponseStatusException(
                     HttpStatus.NOT_FOUND,
-                    UsernameNotFoundException.class.getSimpleName(),
-                    exception
-            );
+                    "id not exist"
+            ));
         }
+
+        if (username != null) {
+            try {
+                return userService.loadUserByUsername(username);
+            } catch (UsernameNotFoundException exception) {
+                throw new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        UsernameNotFoundException.class.getSimpleName(),
+                        exception
+                );
+            }
+        }
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        return userService.loadUserByUsername(authentication.getName());
     }
 
-    @PostMapping("/register")
+    @PostMapping()
     public ResponseEntity<?> register(@Valid @RequestBody User user, Errors errors) {
         if (errors.hasErrors()) {
             return ResponseEntity.badRequest().body(errors.getAllErrors());
