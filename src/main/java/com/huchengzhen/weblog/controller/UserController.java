@@ -7,6 +7,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
@@ -28,12 +29,23 @@ public class UserController {
 
     @GetMapping("/{id}")
     public User findById(@PathVariable Long id) {
-        return userService.findById(id);
+        return userService.findById(id).orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "id not exist"
+        ));
     }
 
     @GetMapping("/name/{username}")
     public User findByUsername(@PathVariable String username) {
-        return userService.loadUserByUsername(username);
+        try {
+            return userService.loadUserByUsername(username);
+        } catch (UsernameNotFoundException exception) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    UsernameNotFoundException.class.getSimpleName(),
+                    exception
+            );
+        }
     }
 
     @PostMapping("/register")

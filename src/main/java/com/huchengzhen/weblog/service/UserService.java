@@ -9,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.Optional;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -27,7 +28,7 @@ public class UserService implements UserDetailsService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public User findById(Long id) {
+    public Optional<User> findById(Long id) {
         return userMapper.findById(id);
     }
 
