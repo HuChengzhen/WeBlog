@@ -4,13 +4,17 @@ import com.huchengzhen.weblog.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(jsr250Enabled = true, prePostEnabled = true, securedEnabled = true)
@@ -18,12 +22,26 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private UserService userService;
 
+    private AuthenticationSuccessHandler jwtAuthenticationSuccessHandler;
+
+    private AuthenticationFailureHandler jwtAuthenticationFailureHandler;
+
     @Value("${WeBlogRememberMeKey:key}")
     private String rememberMeKey;
 
     @Autowired
     public void setUserService(UserService userService) {
         this.userService = userService;
+    }
+
+    @Autowired
+    public void setJwtAuthenticationSuccessHandler(AuthenticationSuccessHandler jwtAuthenticationSuccessHandler) {
+        this.jwtAuthenticationSuccessHandler = jwtAuthenticationSuccessHandler;
+    }
+
+    @Autowired
+    public void setJwtAuthenticationFailureHandler(AuthenticationFailureHandler jwtAuthenticationFailureHandler) {
+        this.jwtAuthenticationFailureHandler = jwtAuthenticationFailureHandler;
     }
 
     @Override
@@ -37,18 +55,38 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
+                .exceptionHandling()
+                .authenticationEntryPoint((httpServletRequest, httpServletResponse, e) -> {
+                    httpServletResponse.setContentType("application/json;charset=utf-8");
+                    httpServletResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
+                    httpServletResponse.getWriter().write("{\"status\":\"error\",\"message\":\"unauthorized\"}");
+                })
+                .accessDeniedHandler((httpServletRequest, httpServletResponse, e) -> {
+                    httpServletResponse.setContentType("application/json;charset=utf-8");
+                    httpServletResponse.setStatus(HttpStatus.FORBIDDEN.value());
+                    httpServletResponse.getWriter().write("{\"status\":\"error\",\"message\":\"insufficient permissions\"}");
+                })
+                .and()
+                .cors()
+                .and()
                 .csrf().disable()
                 .authorizeRequests()
                 .antMatchers("/v1/user/register").permitAll()
                 .anyRequest().hasRole("USER")
                 .and()
                 .formLogin().permitAll()
+                .successHandler(jwtAuthenticationSuccessHandler)
+                .failureHandler(jwtAuthenticationFailureHandler)
+//                .and()
+//                .rememberMe()
+//                .userDetailsService(userService)
+//                .key(rememberMeKey)
                 .and()
-                .rememberMe()
-                .userDetailsService(userService)
-                .key(rememberMeKey)
+                .logout().permitAll()
                 .and()
-                .logout().permitAll();
+                .addFilter(new JWTAuthorizationFilter(authenticationManager()))
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
 
     @Bean
