@@ -5,6 +5,7 @@ import com.huchengzhen.weblog.util.JwtTokenUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -79,8 +80,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/v1/user/register").permitAll()
-                .anyRequest().hasRole("USER")
+                .antMatchers(HttpMethod.POST, "/v1/user").permitAll()
+                .antMatchers("/v1/**").hasRole("USER")
+                .anyRequest().permitAll()
                 .and()
                 .formLogin().permitAll()
                 .successHandler(jwtAuthenticationSuccessHandler)
