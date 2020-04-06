@@ -19,6 +19,7 @@ public class User implements UserDetails {
 
     private static final long serialVersionUID = 1622211531448533147L;
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Long id;
 
     @NotBlank(message = "Username is required")
@@ -36,16 +37,19 @@ public class User implements UserDetails {
             message = "Invalid Email")
     private String email;
 
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Boolean isEnabled;
 
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Boolean emailConfirmed;
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String roles;
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Date createdDate;
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Date lastLoginDate;
 
     @JsonIgnore
