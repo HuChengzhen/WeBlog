@@ -17,7 +17,7 @@ logging:
   level:
     root: debug
 
-pagehelper:
-  offsetAsPageNum: true
-  rowBoundsWithCount: true
-  reasonable: true
+#pagehelper:
+#  offsetAsPageNum: true
+#  rowBoundsWithCount: true
+#  reasonable: true
