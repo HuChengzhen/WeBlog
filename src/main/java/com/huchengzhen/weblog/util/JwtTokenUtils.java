@@ -1,12 +1,10 @@
 package com.huchengzhen.weblog.util;
 
-
 import com.huchengzhen.weblog.dao.User;
-import com.huchengzhen.weblog.security.JwtSecret;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -33,8 +31,8 @@ public class JwtTokenUtils {
     // 选择了记住我之后的过期时间为7天
     private static final long EXPIRATION_REMEMBER = 604800L;
 
-    @Autowired
-    private JwtSecret jwtSecret;
+    @Value("${WeBlogJwtSecret:jwtSECRET}")
+    private String jwtSecret;
 
     // 创建token
     public String createToken(User user) {
@@ -42,7 +40,7 @@ public class JwtTokenUtils {
         map.put(ROLE_CLAIMS, user.getRoles());
         map.put(ID, user.getId().toString());
         return Jwts.builder()
-                .signWith(SignatureAlgorithm.HS512, jwtSecret.getJwtSecret())
+                .signWith(SignatureAlgorithm.HS512, jwtSecret)
                 .setClaims(map)
                 .setIssuer(ISS)
                 .setSubject(user.getUsername())
@@ -72,7 +70,7 @@ public class JwtTokenUtils {
 
     public Claims getTokenBody(String token) {
         return Jwts.parser()
-                .setSigningKey(jwtSecret.getJwtSecret())
+                .setSigningKey(jwtSecret)
                 .parseClaimsJws(token)
                 .getBody();
     }

@@ -53,17 +53,20 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
     // 这里从token中获取用户信息并新建一个token
     private UsernamePasswordAuthenticationToken getAuthentication(String tokenHeader) {
         if (tokenHeader.startsWith(JwtTokenUtils.TOKEN_PREFIX)) {
-            String token = tokenHeader.substring(JwtTokenUtils.TOKEN_PREFIX.length());
+            String tokenString = tokenHeader.substring(JwtTokenUtils.TOKEN_PREFIX.length());
 
-            Claims claims = jwtTokenUtils.getTokenBody(token);
+            Claims claims = jwtTokenUtils.getTokenBody(tokenString);
             String username = jwtTokenUtils.getUsername(claims);
 
             if (username != null) {
                 String roles = jwtTokenUtils.getUserRole(claims);
                 Long id = jwtTokenUtils.getId(claims);
 //                userService.updateLastLoginDate(id, new Date());
-                return new UsernamePasswordAuthenticationToken(username, null,
+                UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, null,
                         AuthorityUtils.commaSeparatedStringToAuthorityList(roles));
+
+                token.setDetails(id);
+                return token;
             }
         }
 

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huchengzhen.weblog.mapper.ArticleMapper">
+
+    <select id="findById" resultType="com.huchengzhen.weblog.dao.Article">
+        select id, author_id, title, body, created_date, edited_date
+        from article
+        where id = #{id}
+    </select>
+
+    <insert id="insert" parameterType="com.huchengzhen.weblog.dao.Article">
+        insert into article(id, author_id, title, body, created_date, edited_date)
+        VALUES (null, #{authorId}, #{title}, #{body}, #{createdDate}, #{editedDate})
+    </insert>
+
+    <select id="findAll" resultType="com.huchengzhen.weblog.dao.Article">
+        select id, author_id, title, body, created_date, edited_date
+        from article
+    </select>
+
+</mapper>
