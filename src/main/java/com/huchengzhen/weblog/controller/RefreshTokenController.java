@@ -37,7 +37,7 @@ public class RefreshTokenController {
         Optional<RefreshToken> optionalRefreshToken = refreshTokenService.findByRefreshToken(refreshToken);
         if (optionalRefreshToken.isPresent()) {
             RefreshToken token = optionalRefreshToken.get();
-            if (token.getExpireDate().after(new Date())) {
+            if (token.getExpireDate().before(new Date())) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "refreshToken expired");
             }
             Long userId = token.getUserId();
