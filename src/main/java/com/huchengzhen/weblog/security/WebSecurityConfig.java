@@ -95,7 +95,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .logout().permitAll()
                 .and()
-                .addFilter(new JWTAuthorizationFilter(authenticationManager(), jwtTokenUtils, userService))
+                .addFilter(new JWTAuthorizationFilter(authenticationManager(), jwtTokenUtils))
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
