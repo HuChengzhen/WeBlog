@@ -4,7 +4,14 @@
 <mapper namespace="com.huchengzhen.weblog.mapper.FollowMapper">
 
     <insert id="insert" parameterType="com.huchengzhen.weblog.dao.Follow">
-
+        insert into follow (id, follower, followed)
+        values (null, #{follower}, #{followed})
     </insert>
 
+    <delete id="cancel" parameterType="com.huchengzhen.weblog.dao.Follow">
+        delete
+        from follow
+        where follower = #{follower}
+          and followed = #{followed}
+    </delete>
 </mapper>

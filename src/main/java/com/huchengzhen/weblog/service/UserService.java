@@ -9,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -49,5 +50,13 @@ public class UserService implements UserDetailsService {
 
     public int updateLastLoginDate(Long id, Date date) {
         return userMapper.updateLastLoginDate(id, date);
+    }
+
+    public List<User> findFollowed(Long follower) {
+        return userMapper.findFollowed(follower);
+    }
+
+    public List<User> findFans(Long followed) {
+        return userMapper.findFans(followed);
     }
 }

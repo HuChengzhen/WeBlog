@@ -44,4 +44,19 @@
         where id = #{id}
     </update>
 
+    <select id="findFollowed" resultType="com.huchengzhen.weblog.dao.User">
+        select user.id, user.avatar, user.email, user.username, user.created_date, user.last_login_date
+        from follow,
+             user
+        where follow.follower = #{follower}
+          and follow.followed = user.id
+    </select>
+
+    <select id="findFans" resultType="com.huchengzhen.weblog.dao.User">
+        select user.id, user.avatar, user.email, user.username, user.created_date, user.last_login_date
+        from follow,
+             user
+        where follow.followed = #{followed}
+          and follow.follower = user.id
+    </select>
 </mapper>

@@ -17,6 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 import java.security.Principal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/v1/user")
@@ -76,12 +77,24 @@ public class UserController {
 
     @GetMapping("/me")
     public User me(Principal principal) {
-        System.out.println(principal.getClass());
-
         UsernamePasswordAuthenticationToken token = (UsernamePasswordAuthenticationToken) principal;
 
         String username = token.getName();
 
         return userService.loadUserByUsername(username);
+    }
+
+    @GetMapping("/followed")
+    public List<User> findFollowedUsers(Principal principal) {
+        UsernamePasswordAuthenticationToken token = (UsernamePasswordAuthenticationToken) principal;
+        Long follower = (Long) token.getDetails();
+        return userService.findFollowed(follower);
+    }
+
+    @GetMapping("/fans")
+    public List<User> findFans(Principal principal) {
+        UsernamePasswordAuthenticationToken token = (UsernamePasswordAuthenticationToken) principal;
+        Long followed = (Long) token.getDetails();
+        return userService.findFans(followed);
     }
 }

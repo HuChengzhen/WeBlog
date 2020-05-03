@@ -8,4 +8,6 @@ public interface FollowMapper {
 
     int insert(Follow follow);
 
+    int cancel(Follow follow);
+
 }
