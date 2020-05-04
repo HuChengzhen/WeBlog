@@ -8,9 +8,9 @@ server:
 
 spring:
   datasource:
-    url: jdbc:mysql:///weblog?serverTimezone=GMT%2B8&characterEncoding=UTF-8
-    username: root
-    password: ASD2100150
+    url: jdbc:mysql://${WEBLOG_MYSQL_URL}/weblog?serverTimezone=GMT%2B8&characterEncoding=UTF-8
+    username: ${WEBLOG_MYSQL_USERNAME}
+    password: ${WEBLOG_MYSQL_PASSWORD}
 
 mybatis:
   configuration:
