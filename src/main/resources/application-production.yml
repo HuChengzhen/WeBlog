@@ -1,5 +1,10 @@
 server:
-  port: 80
+  port: 443
+  ssl:
+    key-store: ${WEBLOG_SSL_KEY_STORE}
+    key-password: ${WEBLOG_SSL_KEY_PASSWORD}
+    key-store-type: PKCS12
+    key-alias: 1
 
 spring:
   datasource:
@@ -15,9 +20,16 @@ mybatis:
 
 logging:
   level:
-    root: debug
+    root: info
 
 #pagehelper:
 #  offsetAsPageNum: true
 #  rowBoundsWithCount: true
 #  reasonable: true
+
+  server.port = 8443
+  # server.ssl.key-store = classpath: server.pfx
+  server.ssl.key-store = /usr/local/ssl/server.pfx
+  server.ssl.key-store-password = mypassword
+  server.ssl.keyStoreType = PKCS12
+  server.ssl.keyAlias = 1
