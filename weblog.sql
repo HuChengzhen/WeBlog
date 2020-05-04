@@ -16,14 +16,6 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Current Database: `weblog`
---
-
-CREATE DATABASE /*!32312 IF NOT EXISTS*/ `weblog` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
-
-USE `weblog`;
-
---
 -- Table structure for table `article`
 --
 
@@ -44,15 +36,6 @@ CREATE TABLE `article` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `article`
---
-
-LOCK TABLES `article` WRITE;
-/*!40000 ALTER TABLE `article` DISABLE KEYS */;
-/*!40000 ALTER TABLE `article` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `follow`
 --
 
@@ -64,21 +47,13 @@ CREATE TABLE `follow` (
   `follower` bigint NOT NULL,
   `followed` bigint NOT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `follower_followed_unique_idx` (`follower`,`followed`),
   KEY `followed_f_idx` (`followed`),
   KEY `follower_f_idx` (`follower`),
   CONSTRAINT `followed_f` FOREIGN KEY (`followed`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `follower_f` FOREIGN KEY (`follower`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `follow`
---
-
-LOCK TABLES `follow` WRITE;
-/*!40000 ALTER TABLE `follow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `follow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `refresh_token`
@@ -96,18 +71,8 @@ CREATE TABLE `refresh_token` (
   UNIQUE KEY `refresh_token_UNIQUE` (`refresh_token`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `refresh_token_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `refresh_token`
---
-
-LOCK TABLES `refresh_token` WRITE;
-/*!40000 ALTER TABLE `refresh_token` DISABLE KEYS */;
-INSERT INTO `refresh_token` VALUES (7,11,'g+B@&\\/om,#Vd%-D>88u_x<w\'@:-bRzBY[{c8QN7','2020-05-31 01:27:59');
-/*!40000 ALTER TABLE `refresh_token` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `user`
@@ -130,18 +95,8 @@ CREATE TABLE `user` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `username_UNIQUE` (`username`),
   UNIQUE KEY `email_UNIQUE` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `user`
---
-
-LOCK TABLES `user` WRITE;
-/*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (11,'hcz',NULL,'$2a$10$dcl8zNyRMU//caO1wo.SPOILDGv/uWajLf17qcuJX8lt..FTA586W','hcz1995@qq.com',1,0,'ROLE_USER','2020-05-01 01:27:24',NULL);
-/*!40000 ALTER TABLE `user` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping events for database 'weblog'
@@ -179,4 +134,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-05-04  5:08:16
+-- Dump completed on 2020-05-05  6:37:41
