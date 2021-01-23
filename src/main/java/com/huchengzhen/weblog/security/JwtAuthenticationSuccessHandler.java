@@ -42,7 +42,7 @@ public class JwtAuthenticationSuccessHandler extends SavedRequestAwareAuthentica
             refreshTokenService.insert(refreshToken);
 
             response.setHeader("token", JwtTokenUtils.TOKEN_PREFIX + token);
-            response.setHeader("refresh_token", URLEncoder.encode(refreshToken.getRefreshToken(), StandardCharsets.UTF_8));
+            response.setHeader("refresh_token", URLEncoder.encode(refreshToken.getRefreshToken(), "UTF-8"));
             response.setContentType("application/json;charset=utf-8");
             PrintWriter out = response.getWriter();
             out.write("{\"status\":\"ok\",\"message\":\"login success\"}");

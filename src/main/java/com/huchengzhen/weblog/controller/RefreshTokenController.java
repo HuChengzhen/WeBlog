@@ -18,6 +18,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 @RestController
 @RequestMapping("v1/token")
@@ -33,7 +34,7 @@ public class RefreshTokenController {
     private UserService userService;
 
     @GetMapping
-    public Map<String, String> getToken(@RequestParam String refreshToken) {
+    public Map<String, String> getToken(@RequestParam String refreshToken) throws Throwable {
         Optional<RefreshToken> optionalRefreshToken = refreshTokenService.findByRefreshToken(refreshToken);
         if (optionalRefreshToken.isPresent()) {
             RefreshToken token = optionalRefreshToken.get();
@@ -42,7 +43,12 @@ public class RefreshTokenController {
             }
             Long userId = token.getUserId();
 
-            User user = userService.findById(userId).orElseThrow();
+            User user = userService.findById(userId).orElseThrow(new Supplier<Throwable>() {
+                @Override
+                public Throwable get() {
+                    return new Exception();
+                }
+            });
 
             Map<String, String> map = new HashMap<>();
 
