@@ -1,11 +1,28 @@
 server:
   port: 8081
-
 spring:
+  boot:
+    admin:
+      client:
+        url: http://localhost:8082
+        instance:
+          name: weblog
+          metadata:
+            user.name: client
+            user.password: client
+        username: hcz
+        password: hcz
   datasource:
     url: jdbc:mysql:///weblog?serverTimezone=GMT%2B8&characterEncoding=UTF-8
     username: root
     password: ASD2100150
+
+
+  endpoint:
+    health:
+      show-details: always
+
+
 
 mybatis:
   configuration:
@@ -17,6 +34,14 @@ logging:
   level:
     root: debug
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
 #pagehelper:
 #  offsetAsPageNum: true
 #  rowBoundsWithCount: true

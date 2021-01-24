@@ -5,6 +5,8 @@ import com.huchengzhen.weblog.util.JwtTokenUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -14,95 +16,120 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.server.authentication.HttpBasicServerAuthenticationEntryPoint;
 
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(jsr250Enabled = true, prePostEnabled = true, securedEnabled = true)
+
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private UserService userService;
+    @Order(2)
+    @Configuration
+    public static class JwtSecurityConfig extends WebSecurityConfigurerAdapter {
+        private UserService userService;
 
-    private AuthenticationSuccessHandler jwtAuthenticationSuccessHandler;
+        private AuthenticationSuccessHandler jwtAuthenticationSuccessHandler;
 
-    private AuthenticationFailureHandler jwtAuthenticationFailureHandler;
+        private AuthenticationFailureHandler jwtAuthenticationFailureHandler;
 
-    private JwtTokenUtils jwtTokenUtils;
+        private JwtTokenUtils jwtTokenUtils;
 
-    @Value("${WeBlogRememberMeKey:key}")
-    private String rememberMeKey;
+        @Value("${WeBlogRememberMeKey:key}")
+        private String rememberMeKey;
 
-    @Autowired
-    public void setUserService(UserService userService) {
-        this.userService = userService;
-    }
+        @Autowired
+        public void setUserService(UserService userService) {
+            this.userService = userService;
+        }
 
-    @Autowired
-    public void setJwtAuthenticationSuccessHandler(AuthenticationSuccessHandler jwtAuthenticationSuccessHandler) {
-        this.jwtAuthenticationSuccessHandler = jwtAuthenticationSuccessHandler;
-    }
+        @Autowired
+        public void setJwtAuthenticationSuccessHandler(AuthenticationSuccessHandler jwtAuthenticationSuccessHandler) {
+            this.jwtAuthenticationSuccessHandler = jwtAuthenticationSuccessHandler;
+        }
 
-    @Autowired
-    public void setJwtAuthenticationFailureHandler(AuthenticationFailureHandler jwtAuthenticationFailureHandler) {
-        this.jwtAuthenticationFailureHandler = jwtAuthenticationFailureHandler;
-    }
+        @Autowired
+        public void setJwtAuthenticationFailureHandler(AuthenticationFailureHandler jwtAuthenticationFailureHandler) {
+            this.jwtAuthenticationFailureHandler = jwtAuthenticationFailureHandler;
+        }
 
-    @Autowired
-    public void setJwtTokenUtils(JwtTokenUtils jwtTokenUtils) {
-        this.jwtTokenUtils = jwtTokenUtils;
-    }
+        @Autowired
+        public void setJwtTokenUtils(JwtTokenUtils jwtTokenUtils) {
+            this.jwtTokenUtils = jwtTokenUtils;
+        }
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth
-                .userDetailsService(userService)
-                .passwordEncoder(passwordEncoder());
+        @Override
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+            auth
+                    .userDetailsService(userService)
+                    .passwordEncoder(passwordEncoder());
 
-    }
+        }
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http
-                .exceptionHandling()
-                .authenticationEntryPoint((httpServletRequest, httpServletResponse, e) -> {
-                    httpServletResponse.setContentType("application/json;charset=utf-8");
-                    httpServletResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
-                    httpServletResponse.getWriter().write("{\"status\":\"error\",\"message\":\"unauthorized\"}");
-                })
-                .accessDeniedHandler((httpServletRequest, httpServletResponse, e) -> {
-                    httpServletResponse.setContentType("application/json;charset=utf-8");
-                    httpServletResponse.setStatus(HttpStatus.FORBIDDEN.value());
-                    httpServletResponse.getWriter().write("{\"status\":\"error\",\"message\":\"insufficient permissions\"}");
-                })
-                .and()
-                .cors()
-                .and()
-                .csrf().disable()
-                .authorizeRequests()
-                .antMatchers("/hello").permitAll()
-                .antMatchers(HttpMethod.POST, "/v1/user").permitAll()
-                .antMatchers(HttpMethod.GET, "/v1/token").permitAll()
-                .antMatchers("/v1/**").hasRole("USER")
-                .anyRequest().permitAll()
-                .and()
-                .formLogin().permitAll()
-                .successHandler(jwtAuthenticationSuccessHandler)
-                .failureHandler(jwtAuthenticationFailureHandler)
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http
+                    .exceptionHandling()
+                    .authenticationEntryPoint((httpServletRequest, httpServletResponse, e) -> {
+                        httpServletResponse.setContentType("application/json;charset=utf-8");
+                        httpServletResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
+                        httpServletResponse.getWriter().write("{\"status\":\"error\",\"message\":\"unauthorized\"}");
+                    })
+                    .accessDeniedHandler((httpServletRequest, httpServletResponse, e) -> {
+                        httpServletResponse.setContentType("application/json;charset=utf-8");
+                        httpServletResponse.setStatus(HttpStatus.FORBIDDEN.value());
+                        httpServletResponse.getWriter().write("{\"status\":\"error\",\"message\":\"insufficient permissions\"}");
+                    })
+                    .and()
+                    .cors()
+                    .and()
+                    .csrf().disable()
+                    .authorizeRequests()
+                    .antMatchers("/hello").permitAll()
+                    .antMatchers(HttpMethod.POST, "/v1/user").permitAll()
+                    .antMatchers(HttpMethod.GET, "/v1/token").permitAll()
+                    .antMatchers("/v1/**").hasRole("USER")
+                    .and()
+                    .formLogin().permitAll()
+                    .successHandler(jwtAuthenticationSuccessHandler)
+                    .failureHandler(jwtAuthenticationFailureHandler)
 //                .and()
 //                .rememberMe()
 //                .userDetailsService(userService)
 //                .key(rememberMeKey)
-                .and()
-                .logout().permitAll()
-                .and()
-                .addFilter(new JWTAuthorizationFilter(authenticationManager(), jwtTokenUtils))
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                    .and()
+                    .logout().permitAll()
+                    .and()
+                    .addFilter(new JWTAuthorizationFilter(authenticationManager(), jwtTokenUtils))
+                    .sessionManagement()
+                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        }
+
+        @Bean
+        public PasswordEncoder passwordEncoder() {
+            return new BCryptPasswordEncoder();
+        }
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+    @Order(1)
+    @Configuration
+    public static class BasicSecurityConfig extends WebSecurityConfigurerAdapter {
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http.authorizeRequests()
+                    .antMatchers("/actuator/**").hasRole("USER")
+                    .and()
+                    .httpBasic();
+        }
+
+        @Override
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+            auth.inMemoryAuthentication().withUser("client").password(NoOpPasswordEncoder.getInstance().encode("client"))
+                    .roles("USER").and().passwordEncoder(NoOpPasswordEncoder.getInstance());
+        }
     }
 }
